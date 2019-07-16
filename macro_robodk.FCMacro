@@ -1,0 +1,34 @@
+import FreeCADGui
+from Robot import Trajectory
+
+from robolink import *
+
+RDK = Robolink()
+rdkObj = RDK.Item('', ITEM_TYPE_OBJECT)
+
+points = []
+for obj in FreeCADGui.Selection.getSelection():
+  if obj.TypeId == 'Robot::Edge2TracObject':
+    for wp in obj.Trajectory.Waypoints:
+      point = []
+      point.append(wp.Pos.Base.x)
+      point.append(wp.Pos.Base.y)
+      point.append(wp.Pos.Base.z)
+      """point.append(0)
+      point.append(0)
+      point.append(0)
+      """
+      points.append(point)
+
+i = 0
+while len(points) > 1:
+  curve = []
+  curve.append(points[0])
+  curve.append(points[1])
+  if i == 0:
+    rdkCurve = rdkObj.AddCurve(curve, False, PROJECTION_ALONG_NORMAL_RECALC)
+    i += 1
+  else:
+    rdkCurve.AddCurve(curve, True, PROJECTION_ALONG_NORMAL_RECALC)
+  del points[0]
+rdkCurve.setName('Test')
